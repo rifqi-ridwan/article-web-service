@@ -38,7 +38,10 @@ func (h *apiHandler) FindByID(c echo.Context) error {
 	}
 
 	article, err := h.service.FindByID(c.Request().Context(), id)
-	if err != nil && err != entity.ErrNotFound {
+	if err != nil {
+		if err == entity.ErrNotFound {
+			return c.JSON(http.StatusNotFound, echo.Map{"data": ""})
+		}
 		return c.JSON(http.StatusInternalServerError, echo.Map{"message": err.Error()})
 	}
 	return c.JSON(http.StatusOK, echo.Map{"data": article})

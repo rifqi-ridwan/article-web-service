@@ -1,0 +1,35 @@
+version: "3.9"
+   
+services:
+  db:
+    container_name: pg_container
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: test_db
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "test_db", "-U", "postgres" ]
+      timeout: 10s
+      interval: 5s
+      retries: 5
+  redis:
+    container_name: redis_container
+    image: redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
+  web:
+    container_name: article_ws_container
+    build: .
+    ports:
+      - "8888:8888"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      

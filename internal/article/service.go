@@ -4,12 +4,15 @@ import (
 	"article-web-service/internal/cache"
 	"article-web-service/internal/entity"
 	"context"
+	"fmt"
 	"log"
-	"strconv"
 	"time"
 )
 
-const defaultDuration = 60 * time.Hour
+const (
+	cacheKey        = "article:"
+	defaultDuration = 60 * time.Minute
+)
 
 type ArticleService interface {
 	Search(ctx context.Context, keyword string, author string) ([]entity.Article, error)
@@ -35,6 +38,7 @@ func (s *service) Search(ctx context.Context, keyword string, author string) ([]
 	}
 
 	if keyword != "" {
+		keyword = fmt.Sprintf("%%%s%%", keyword)
 		s.repo.QueryBuilder(ctx, &fields, "title", "LIKE", "AND")
 		values = append(values, keyword)
 		s.repo.QueryBuilder(ctx, &fields, "content", "LIKE", "AND")
@@ -50,8 +54,9 @@ func (s *service) Search(ctx context.Context, keyword string, author string) ([]
 }
 
 func (s *service) FindByID(ctx context.Context, id int) (entity.Article, error) {
-	stringID := strconv.Itoa(id)
-	article, err := s.findCacheByID(ctx, stringID)
+	// stringID := strconv.Itoa(id)
+	cacheKey := fmt.Sprintf("%s%d", cacheKey, id)
+	article, err := s.findCacheByID(ctx, cacheKey)
 	if err != nil && err != entity.CacheNotExist {
 		return article, err
 	}
@@ -61,7 +66,7 @@ func (s *service) FindByID(ctx context.Context, id int) (entity.Article, error) 
 		return article, err
 	}
 
-	err = s.cache.WriteJSON(ctx, stringID, article, defaultDuration)
+	err = s.cache.WriteJSON(ctx, cacheKey, article, defaultDuration)
 	if err != nil {
 		log.Printf("failed to create cache: %v", err)
 	}
