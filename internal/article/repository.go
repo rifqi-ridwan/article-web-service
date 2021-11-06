@@ -47,7 +47,7 @@ func (r *repository) FindByParams(ctx context.Context, fields []string, values [
 	}
 
 	var articles []entity.Article
-	result := r.db.Order("created_at desc").Where(strings.Join(fields, " AND "), values...).Find(&articles)
+	result := r.db.Order("created_at desc").Where(strings.Join(fields, ""), values...).Find(&articles)
 	return articles, result.Error
 }
 
