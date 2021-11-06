@@ -13,6 +13,7 @@ type ArticleRepository interface {
 	FindByID(ctx context.Context, id int) (entity.Article, error)
 	FindAll(ctx context.Context) ([]entity.Article, error)
 	FindByParams(ctx context.Context, fields []string, values []interface{}) ([]entity.Article, error)
+	QueryBuilder(ctx context.Context, arr *[]string, fieldname string, operator string, joinop string)
 }
 
 type repository struct {
@@ -48,4 +49,22 @@ func (r *repository) FindByParams(ctx context.Context, fields []string, values [
 	var articles []entity.Article
 	result := r.db.Order("created_at desc").Where(strings.Join(fields, " AND "), values...).Find(&articles)
 	return articles, result.Error
+}
+
+func (r *repository) QueryBuilder(ctx context.Context, arr *[]string, fieldname string, operator string, joinop string) {
+	var arrString []string
+	arrString = append(arrString, fieldname, operator, "?")
+	joinString := strings.Join(arrString, " ")
+	if len(*arr) == 0 {
+		*arr = append(*arr, joinString)
+	} else {
+		switch joinop {
+		case "OR":
+			joinop = " OR "
+		default:
+			joinop = " AND "
+		}
+
+		*arr = append(*arr, joinop, joinString)
+	}
 }
