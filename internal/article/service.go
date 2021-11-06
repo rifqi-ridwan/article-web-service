@@ -36,11 +36,14 @@ func (s *service) Search(ctx context.Context, keyword string, author string) ([]
 
 	if keyword != "" {
 		s.repo.QueryBuilder(ctx, &fields, "title", "LIKE", "AND")
+		values = append(values, keyword)
 		s.repo.QueryBuilder(ctx, &fields, "content", "LIKE", "AND")
+		values = append(values, keyword)
 	}
 
 	if author != "" {
 		s.repo.QueryBuilder(ctx, &fields, "author", "=", "AND")
+		values = append(values, author)
 	}
 
 	return s.repo.FindByParams(ctx, fields, values)
