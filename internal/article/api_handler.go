@@ -13,7 +13,7 @@ type apiHandler struct {
 	service ArticleService
 }
 
-func New(s ArticleService) *apiHandler {
+func NewAPIHandler(s ArticleService) *apiHandler {
 	return &apiHandler{s}
 }
 
