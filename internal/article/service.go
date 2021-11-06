@@ -68,16 +68,16 @@ func (s *service) FindByID(ctx context.Context, id int) (entity.Article, error) 
 	return article, nil
 }
 
-func (s *service) findCacheByID(ctx context.Context, id string) (entity.Article, error) {
-	var article entity.Article
-	err := s.cache.ReadJSON(ctx, id, &article)
-	return article, err
-}
-
 func (s *service) Store(ctx context.Context, article *entity.Article) error {
 	return s.repo.Store(ctx, article)
 }
 
 func (s *service) findAll(ctx context.Context) ([]entity.Article, error) {
 	return s.repo.FindAll(ctx)
+}
+
+func (s *service) findCacheByID(ctx context.Context, id string) (entity.Article, error) {
+	var article entity.Article
+	err := s.cache.ReadJSON(ctx, id, &article)
+	return article, err
 }
