@@ -51,7 +51,7 @@ func (h *apiHandler) Store(c echo.Context) error {
 	var createRequest articleCreateRequest
 	err := c.Bind(&createRequest)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{"message": err.Error()})
+		return c.JSON(http.StatusUnsupportedMediaType, echo.Map{"message": err.Error()})
 	}
 
 	article, err := createRequest.BuildArticleStruct()
